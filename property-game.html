@@ -912,9 +912,9 @@
                     // Show intermediate message
                     this.showMessage('Submitting your assessment...', 'info');
                     
-                    // Check if we're in Claude artifact environment (CSP restricted)
                     const isClaudeArtifact = window.location.href.includes('about:srcdoc') || 
-                                           window.location.href.includes('claudeusercontent.com');
+                       window.location.href.includes('claudeusercontent.com') ||
+                       window.location.href.includes('github.io');
                     
                     let result;
                     if (isClaudeArtifact) {
