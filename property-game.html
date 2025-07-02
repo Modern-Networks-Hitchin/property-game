@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Manager IT Crisis Simulator | Modern Networks</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 1000px;
+            width: 95%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .building-view {
+            background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            position: relative;
+        }
+        
+        .building {
+            font-size: 120px;
+            text-align: center;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+            animation: subtle-pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes subtle-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .building-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            border: 2px solid #dc143c;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .status-good { color: #666; }
+        .status-warning { color: #dc143c; }
+        .status-critical { color: #8b0000; }
+        
+        .metrics-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 4px solid #dc143c;
+            transition: transform 0.2s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .metric-value { 
+            font-size: 2rem; 
+            font-weight: bold; 
+            color: #666; 
+            transition: color 0.3s ease;
+        }
+        .metric-label { color: #666; font-size: 0.9rem; }
+        
+        .scenario-container { padding: 30px; }
+        
+        .scenario-header {
+            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .scenario-description {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 5px solid #dc143c;
+            color: #666;
+        }
+        
+        .option-button {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-button:hover:not(.disabled) {
+            border-color: #dc143c;
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(220, 20, 60, 0.1);
+        }
+        
+        .option-button.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .option-title { font-weight: bold; color: #666; margin-bottom: 5px; }
+        .option-description { color: #666; font-size: 0.9rem; }
+        .option-cost { color: #dc143c; font-weight: bold; margin-top: 5px; }
+        
+        .result-container {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+            border-left: 5px solid #666;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .impact-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-top: 3px solid #dc143c;
+            transition: transform 0.2s ease;
+        }
+        
+        .impact-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .impact-value { font-size: 1.5rem; font-weight: bold; }
+        .positive { color: #28a745; }
+        .negative { color: #dc143c; }
+        
+        .btn {
+            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 10px 10px 10px 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 20, 60, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .start-screen { text-align: center; padding: 50px 30px; color: #666; }
+        .start-btn { 
+            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%); 
+            color: white; 
+            border: none; 
+            padding: 20px 40px; 
+            border-radius: 12px; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            margin-top: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(220, 20, 60, 0.3);
+        }
+        
+        .contact-form {
+            background: #f8f9fa;
+            padding: 30px;
+            margin-top: 30px;
+            border-radius: 12px;
+            border-top: 5px solid #dc143c;
+        }
+        
+        .form-row { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 15px; 
+        }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 5px; font-weight: bold; color: #666; }
+        .form-group input, .form-group textarea, .form-group select { 
+            padding: 12px; 
+            border: 2px solid #e9ecef; 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            color: #666; 
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { 
+            outline: none; 
+            border-color: #dc143c; 
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        }
+        
+        .submit-btn { 
+            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%); 
+            color: white; 
+            border: none; 
+            padding: 15px 40px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 20, 60, 0.3);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+        
+        /* Responsive design improvements */
+        @media (max-width: 768px) {
+            .game-container { width: 98%; margin: 10px; }
+            .building { width: 240px; height: 180px; }
+            .metrics-dashboard { grid-template-columns: repeat(2, 1fr); }
+            .impact-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 480px) {
+            .header { padding: 20px; }
+            .scenario-container { padding: 20px; }
+            .building-view { padding: 20px; }
+            .metrics-dashboard { padding: 20px; grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🏢 Property Manager Crisis Simulator</h1>
+            <p>Navigate real IT challenges and see their impact on your bottom line</p>
+        </div>
+        
+        <div class="building-view">
+            <div class="building">🏢</div>
+            <div class="building-status" id="building-status">All Systems Normal</div>
+        </div>
+        
+        <div class="metrics-dashboard">
+            <div class="metric-card">
+                <div class="metric-value" id="satisfaction">95%</div>
+                <div class="metric-label">Tenant Satisfaction</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="cost">£2.45</div>
+                <div class="metric-label">IT Cost per Sq Ft/Month</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="uptime">99.9%</div>
+                <div class="metric-label">System Uptime</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="response">< 2hrs</div>
+                <div class="metric-label">Avg Response Time</div>
+            </div>
+        </div>
+        
+        <div id="game-content">
+            <div class="start-screen" id="start-screen">
+                <h2>Welcome to Your 500,000 Sq Ft Office Complex</h2>
+                <p>You manage a premium office building with 50 tenants. Every IT decision impacts your occupancy rates, tenant satisfaction, and operating costs.</p>
+                <button class="start-btn" onclick="gameManager.startGame()">Start Managing Your Property</button>
+            </div>
+            
+            <div id="scenario-content" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Game Manager - Centralized state and error handling
+        class GameManager {
+            constructor() {
+                this.currentScenario = 0;
+                this.gameState = {
+                    tenantSatisfaction: 95,
+                    costPerSqFt: 2.45,
+                    uptime: 99.9,
+                    responseTime: 2
+                };
+                this.gameDecisions = [];
+                this.windows = [];
+                this.animationFrame = null;
+                this.isGameActive = false;
+                
+                this.scenarios = [
+                    {
+                        title: "🚨 Network Outage Crisis",
+                        description: "It's 9 AM Monday morning and your main network switch has failed. 30 businesses can't access email, cloud services, or make VoIP calls.",
+                        options: [
+                            {
+                                title: "Emergency Same-Day Replacement",
+                                description: "Call your managed IT provider for immediate on-site support",
+                                cost: "£850 + £200/hr labour",
+                                impact: { satisfaction: 2, cost: 0.15, uptime: 1.0, responseTime: -1 },
+                                result: "Crisis resolved in 3 hours. Tenants appreciate quick response."
+                            },
+                            {
+                                title: "DIY Troubleshooting",
+                                description: "Try to fix it yourself first, then call for standard service",
+                                cost: "£450 + your time",
+                                impact: { satisfaction: -8, cost: 0.05, uptime: -0.5, responseTime: 4 },
+                                result: "Outage lasted 8 hours. Three tenants threatened early lease termination."
+                            },
+                            {
+                                title: "Wait for Regular Hours",
+                                description: "Save on emergency fees and wait for normal repair rates tomorrow",
+                                cost: "£250 repair cost",
+                                impact: { satisfaction: -15, cost: -0.10, uptime: -2.0, responseTime: 18 },
+                                result: "24-hour outage. Major tenant moved out (£180,000 annual rent lost)."
+                            }
+                        ]
+                    },
+                    {
+                        title: "🔒 Security Breach Alert",
+                        description: "Your security cameras detected suspicious activity. The access logs show potential data breach affecting multiple businesses.",
+                        options: [
+                            {
+                                title: "Full Security Audit",
+                                description: "Deploy cybersecurity team immediately, run full forensics",
+                                cost: "£2,500 immediate + ongoing costs",
+                                impact: { satisfaction: 5, cost: 0.25, uptime: 0, responseTime: -0.5 },
+                                result: "Breach contained quickly. Tenants impressed with transparency."
+                            },
+                            {
+                                title: "Basic Investigation",
+                                description: "Check obvious issues, change passwords, monitor for a few days",
+                                cost: "£500 + internal time",
+                                impact: { satisfaction: -3, cost: 0.05, uptime: -0.2, responseTime: 2 },
+                                result: "Small data exposure discovered later. Legal costs and reputation damage."
+                            },
+                            {
+                                title: "Monitor and Hope",
+                                description: "Keep an eye on things but don't alarm tenants",
+                                cost: "£50 for new passwords",
+                                impact: { satisfaction: -20, cost: -0.05, uptime: -1.0, responseTime: 0 },
+                                result: "Major breach discovered weeks later. Building reputation severely damaged."
+                            }
+                        ]
+                    },
+                    {
+                        title: "📶 WiFi Performance Complaints",
+                        description: "Multiple tenants complaining about slow WiFi. A law firm is threatening to break their lease early if performance doesn't improve.",
+                        options: [
+                            {
+                                title: "Comprehensive Network Upgrade",
+                                description: "Install enterprise-grade WiFi 6E throughout building",
+                                cost: "£25,000 upfront + £300/month",
+                                impact: { satisfaction: 12, cost: 0.35, uptime: 1.5, responseTime: -1 },
+                                result: "WiFi performance now exceeds expectations. 95% tenant retention."
+                            },
+                            {
+                                title: "Targeted Upgrades",
+                                description: "Upgrade only problem areas and add access points",
+                                cost: "£8,000 + £150/month",
+                                impact: { satisfaction: 4, cost: 0.12, uptime: 0.5, responseTime: 0 },
+                                result: "Most issues resolved. Law firm stayed."
+                            },
+                            {
+                                title: "Band-aid Solutions",
+                                description: "Reset routers, ask tenants to use less bandwidth",
+                                cost: "£200 for technician visit",
+                                impact: { satisfaction: -10, cost: 0.02, uptime: -0.3, responseTime: 1 },
+                                result: "Law firm broke lease early (£85,000 lost)."
+                            }
+                        ]
+                    }
+                ];
+
+                this.init();
+            }
+
+            init() {
+                try {
+                    this.updateBuildingStatus();
+                    this.isGameActive = true;
+                } catch (error) {
+                    this.handleError('Initialization failed', error);
+                }
+            }
+
+            initBuilding() {
+                try {
+                    const floors = document.getElementById('building-floors');
+                    if (!floors) throw new Error('Building floors element not found');
+                    
+                    // Clear existing windows
+                    floors.innerHTML = '';
+                    this.windows = [];
+                    
+                    // Create windows with error handling
+                    for (let i = 0; i < 48; i++) {
+                        const window = document.createElement('div');
+                        window.className = 'window';
+                        window.setAttribute('data-window-id', i);
+                        floors.appendChild(window);
+                        this.windows.push(window);
+                    }
+                } catch (error) {
+                    this.handleError('Failed to initialize building', error);
+                }
+            }
+
+            updateBuildingStatus() {
+                try {
+                    if (!this.isGameActive) return;
+                    
+                    const statusElement = document.getElementById('building-status');
+                    const buildingElement = document.querySelector('.building');
+                    if (!statusElement) return;
+                    
+                    // Update building appearance based on status
+                    if (buildingElement) {
+                        if (this.gameState.uptime < 95) {
+                            buildingElement.style.filter = 'drop-shadow(0 10px 20px rgba(220, 20, 60, 0.5)) grayscale(0.3)';
+                        } else if (this.gameState.tenantSatisfaction > 90) {
+                            buildingElement.style.filter = 'drop-shadow(0 10px 20px rgba(40, 167, 69, 0.3))';
+                        } else {
+                            buildingElement.style.filter = 'drop-shadow(0 10px 20px rgba(0,0,0,0.3))';
+                        }
+                    }
+                    
+                    // Update status text
+                    if (this.gameState.uptime < 95) {
+                        statusElement.textContent = 'Systems Critical';
+                        statusElement.className = 'building-status status-critical';
+                    } else if (this.gameState.tenantSatisfaction < 80) {
+                        statusElement.textContent = 'Tenant Issues';
+                        statusElement.className = 'building-status status-warning';
+                    } else {
+                        statusElement.textContent = 'All Systems Normal';
+                        statusElement.className = 'building-status status-good';
+                    }
+                } catch (error) {
+                    this.handleError('Failed to update building status', error);
+                }
+            }
+
+            startGame() {
+                try {
+                    const startScreen = document.getElementById('start-screen');
+                    const scenarioContent = document.getElementById('scenario-content');
+                    
+                    if (startScreen) startScreen.style.display = 'none';
+                    if (scenarioContent) scenarioContent.style.display = 'block';
+                    
+                    this.currentScenario = 0;
+                    this.loadScenario(0);
+                } catch (error) {
+                    this.handleError('Failed to start game', error);
+                }
+            }
+
+            loadScenario(index) {
+                try {
+                    if (index >= this.scenarios.length) {
+                        this.showGameComplete();
+                        return;
+                    }
+
+                    const scenario = this.scenarios[index];
+                    const scenarioContent = document.getElementById('scenario-content');
+                    
+                    if (!scenarioContent) throw new Error('Scenario content element not found');
+
+                    scenarioContent.innerHTML = `
+                        <div class="scenario-container">
+                            <div class="scenario-header">
+                                <h2>${scenario.title}</h2>
+                                <p>Scenario ${index + 1} of ${this.scenarios.length}</p>
+                            </div>
+                            
+                            <div class="scenario-description">
+                                <p>${scenario.description}</p>
+                            </div>
+                            
+                            <div class="options-container">
+                                ${scenario.options.map((option, optIndex) => `
+                                    <div class="option-button" onclick="gameManager.selectOption(${index}, ${optIndex})">
+                                        <div class="option-title">${option.title}</div>
+                                        <div class="option-description">${option.description}</div>
+                                        <div class="option-cost">Cost: ${option.cost}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <div class="result-container" id="result-${index}">
+                                <h3>Decision Impact:</h3>
+                                <p id="result-text-${index}"></p>
+                                <div class="impact-grid" id="impact-grid-${index}"></div>
+                                <button class="btn" onclick="gameManager.nextScenario()">Continue to Next Challenge</button>
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    this.handleError('Failed to load scenario', error);
+                }
+            }
+
+            selectOption(scenarioIndex, optionIndex) {
+                try {
+                    const scenario = this.scenarios[scenarioIndex];
+                    const option = scenario.options[optionIndex];
+                    
+                    // Update game state with bounds checking
+                    this.gameState.tenantSatisfaction = Math.max(0, Math.min(100, 
+                        this.gameState.tenantSatisfaction + option.impact.satisfaction));
+                    this.gameState.costPerSqFt = Math.max(0, 
+                        this.gameState.costPerSqFt + option.impact.cost);
+                    this.gameState.uptime = Math.max(0, Math.min(100, 
+                        this.gameState.uptime + option.impact.uptime));
+                    this.gameState.responseTime = Math.max(0.5, 
+                        this.gameState.responseTime + option.impact.responseTime);
+                    
+                    // Record decision
+                    this.gameDecisions.push({
+                        scenario: scenarioIndex,
+                        option: optionIndex,
+                        title: option.title,
+                        impact: option.impact
+                    });
+                    
+                    this.updateMetrics();
+                    this.updateBuildingStatus();
+                    this.showResult(this.currentScenario, option);
+                } catch (error) {
+                    this.handleError('Failed to process option selection', error);
+                }
+            }
+
+            updateMetrics() {
+                try {
+                    const elements = {
+                        satisfaction: document.getElementById('satisfaction'),
+                        cost: document.getElementById('cost'),
+                        uptime: document.getElementById('uptime'),
+                        response: document.getElementById('response')
+                    };
+
+                    if (elements.satisfaction) {
+                        elements.satisfaction.textContent = Math.round(this.gameState.tenantSatisfaction) + '%';
+                    }
+                    if (elements.cost) {
+                        elements.cost.textContent = '£' + this.gameState.costPerSqFt.toFixed(2);
+                    }
+                    if (elements.uptime) {
+                        elements.uptime.textContent = this.gameState.uptime.toFixed(1) + '%';
+                    }
+                    if (elements.response) {
+                        elements.response.textContent = this.gameState.responseTime < 1 ? 
+                            '< 1hr' : this.gameState.responseTime.toFixed(0) + 'hrs';
+                    }
+                } catch (error) {
+                    this.handleError('Failed to update metrics', error);
+                }
+            }
+
+            showResult(scenarioIndex, option) {
+                try {
+                    const resultContainer = document.getElementById(`result-${scenarioIndex}`);
+                    const resultText = document.getElementById(`result-text-${scenarioIndex}`);
+                    const impactGrid = document.getElementById(`impact-grid-${scenarioIndex}`);
+                    
+                    if (!resultContainer || !resultText || !impactGrid) {
+                        throw new Error('Result elements not found');
+                    }
+                    
+                    resultText.textContent = option.result;
+                    
+                    impactGrid.innerHTML = `
+                        <div class="impact-item">
+                            <div class="impact-value ${option.impact.satisfaction >= 0 ? 'positive' : 'negative'}">
+                                ${option.impact.satisfaction >= 0 ? '+' : ''}${option.impact.satisfaction}%
+                            </div>
+                            <div>Satisfaction</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-value ${option.impact.cost <= 0 ? 'positive' : 'negative'}">
+                                ${option.impact.cost >= 0 ? '+' : ''}£${option.impact.cost.toFixed(2)}
+                            </div>
+                            <div>Cost/Sq Ft</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-value ${option.impact.uptime >= 0 ? 'positive' : 'negative'}">
+                                ${option.impact.uptime >= 0 ? '+' : ''}${option.impact.uptime.toFixed(1)}%
+                            </div>
+                            <div>Uptime</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-value ${option.impact.responseTime <= 0 ? 'positive' : 'negative'}">
+                                ${option.impact.responseTime <= 0 ? '' : '+'}${option.impact.responseTime}hrs
+                            </div>
+                            <div>Response Time</div>
+                        </div>
+                    `;
+                    
+                    resultContainer.style.display = 'block';
+                    
+                    // Disable option buttons
+                    document.querySelectorAll('.option-button').forEach(btn => {
+                        btn.classList.add('disabled');
+                    });
+                } catch (error) {
+                    this.handleError('Failed to show result', error);
+                }
+            }
+
+            nextScenario() {
+                try {
+                    this.currentScenario++;
+                    this.loadScenario(this.currentScenario);
+                } catch (error) {
+                    this.handleError('Failed to load next scenario', error);
+                }
+            }
+
+            showGameComplete() {
+                try {
+                    const scenarioContent = document.getElementById('scenario-content');
+                    if (!scenarioContent) throw new Error('Scenario content element not found');
+
+                    scenarioContent.innerHTML = `
+                        <div class="scenario-container">
+                            <div class="scenario-header">
+                                <h2>🎉 Assessment Complete!</h2>
+                                <p>Your Property Management Analysis is Ready</p>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; border: 2px solid #dc143c; padding: 30px; border-radius: 12px; margin: 20px 0; text-align: center;">
+                                <h3 style="color: #dc143c; margin-bottom: 15px;">🔒 Your Results Are Ready!</h3>
+                                <p style="color: #666; margin-bottom: 20px;">Complete the form below to instantly access:</p>
+                                <ul style="color: #666; text-align: left; max-width: 500px; margin: 0 auto; line-height: 1.6;">
+                                    <li><strong>Your Property Management Performance Score</strong></li>
+                                    <li><strong>Executive IT Risk Assessment Report</strong></li>
+                                    <li><strong>Customised recommendations for your building</strong></li>
+                                    <li><strong>Cost-saving opportunities analysis</strong></li>
+                                    <li><strong>Priority action plan for IT improvements</strong></li>
+                                </ul>
+                                <p style="color: #dc143c; font-weight: bold; margin-top: 20px;">📄 Professional PDF report included</p>
+                            </div>
+                            
+                            <div class="contact-form">
+                                <h3>Complete Your Assessment - Get Your Results</h3>
+                                <p style="text-align: center; margin-bottom: 20px; color: #666;">Only name and email required to access your personalised results</p>
+                                
+                                <form id="assessment-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="name">Full Name *</label>
+                                            <input type="text" id="name" name="name" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="email">Email Address *</label>
+                                            <input type="email" id="email" name="email" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="phone">Phone Number</label>
+                                            <input type="tel" id="phone" name="phone">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="company">Company/Building Name</label>
+                                            <input type="text" id="company" name="company">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="building-size">Building Size (Sq Ft)</label>
+                                            <select id="building-size" name="building-size">
+                                                <option value="">Select size range</option>
+                                                <option value="under-50k">Under 50,000 sq ft</option>
+                                                <option value="50k-100k">50,000 - 100,000 sq ft</option>
+                                                <option value="100k-250k">100,000 - 250,000 sq ft</option>
+                                                <option value="250k-500k">250,000 - 500,000 sq ft</option>
+                                                <option value="over-500k">Over 500,000 sq ft</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="role">Your Role</label>
+                                            <select id="role" name="role">
+                                                <option value="">Select your role</option>
+                                                <option value="property-manager">Property Manager</option>
+                                                <option value="facilities-manager">Facilities Manager</option>
+                                                <option value="building-owner">Building Owner</option>
+                                                <option value="operations-director">Operations Director</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="challenges">Current IT Challenges (Optional)</label>
+                                        <textarea id="challenges" name="challenges" rows="3" placeholder="e.g., WiFi complaints, network outages, security concerns..."></textarea>
+                                    </div>
+                                    
+                                    <div id="form-messages"></div>
+                                    
+                                    <button type="submit" class="submit-btn" id="submit-btn">🔓 Get Results & Download Report Instantly</button>
+                                </form>
+                                
+                                <p style="text-align: center; margin-top: 15px; color: #666;">
+                                    Questions? Call us: <strong style="color: #dc143c;">01442 400 600</strong>
+                                </p>
+                            </div>
+                        </div>
+                    `;
+
+                    // Add form submission handler with better error checking
+                    setTimeout(() => {
+                        const form = document.getElementById('assessment-form');
+                        const submitBtn = document.getElementById('submit-btn');
+                        
+                        if (form) {
+                            form.addEventListener('submit', (e) => {
+                                console.log('Form submitted via form event');
+                                this.handleFormSubmission(e);
+                            });
+                            console.log('Form event listener attached');
+                        } else {
+                            console.error('Form element not found');
+                        }
+                        
+                        // Also add click handler to submit button as backup
+                        if (submitBtn) {
+                            submitBtn.addEventListener('click', (e) => {
+                                console.log('Submit button clicked');
+                                if (form && form.checkValidity()) {
+                                    e.preventDefault();
+                                    this.handleFormSubmission(e);
+                                }
+                            });
+                            console.log('Submit button click listener attached');
+                        }
+                        
+                    }, 100);
+                } catch (error) {
+                    this.handleError('Failed to show game completion', error);
+                }
+            }
+
+            async handleFormSubmission(event) {
+                event.preventDefault();
+                console.log('Form submission started');
+                
+                try {
+                    const submitBtn = document.getElementById('submit-btn');
+                    const formMessages = document.getElementById('form-messages');
+                    
+                    console.log('Submit button found:', !!submitBtn);
+                    console.log('Form messages element found:', !!formMessages);
+                    
+                    // Show loading state
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<span class="loading"></span> Processing...';
+                        submitBtn.disabled = true;
+                    }
+                    
+                    // Clear previous messages
+                    if (formMessages) formMessages.innerHTML = '';
+                    
+                    // Collect form data
+                    const form = document.getElementById('assessment-form');
+                    const formData = new FormData(form);
+                    
+                    // Validate required fields
+                    const name = formData.get('name');
+                    const email = formData.get('email');
+                    
+                    console.log('Name:', name);
+                    console.log('Email:', email);
+                    
+                    if (!name || !email) {
+                        throw new Error('Name and email are required');
+                    }
+                    
+                    // Calculate final metrics
+                    const grade = this.calculateGrade();
+                    const riskScore = this.calculateRiskScore();
+                    const potentialSavings = this.calculateSavings();
+                    const primaryRisk = this.getPrimaryRisk();
+                    const secondaryRisk = this.getSecondaryRisk();
+                    
+                    // Prepare data for Google Apps Script
+                    const submissionData = {
+                        name: name,
+                        email: email,
+                        phone: formData.get('phone') || '',
+                        company: formData.get('company') || 'Not provided',
+                        buildingSize: formData.get('building-size') || 'Not specified',
+                        role: formData.get('role') || 'Not specified',
+                        challenges: formData.get('challenges') || '',
+                        grade: grade,
+                        tenantSatisfaction: Math.round(this.gameState.tenantSatisfaction),
+                        costPerSqFt: this.gameState.costPerSqFt.toFixed(2),
+                        uptime: this.gameState.uptime.toFixed(1),
+                        responseTime: this.gameState.responseTime.toFixed(0),
+                        riskScore: riskScore,
+                        potentialSavings: potentialSavings,
+                        primaryRisk: primaryRisk,
+                        secondaryRisk: secondaryRisk,
+                        gameDecisions: this.gameDecisions,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    console.log('Sending data to Google Apps Script:', submissionData);
+                    
+                    // Show intermediate message
+                    this.showMessage('Submitting your assessment...', 'info');
+                    
+                    // Check if we're in Claude artifact environment (CSP restricted)
+                    const isClaudeArtifact = window.location.href.includes('about:srcdoc') || 
+                                           window.location.href.includes('claudeusercontent.com');
+                    
+                    let result;
+                    if (isClaudeArtifact) {
+                        // Simulate success for demonstration in Claude environment
+                        console.log('Claude artifact environment detected - simulating success');
+                        this.showMessage('⚠️ Demo Mode: In live environment, data would be sent to Google Sheets', 'info');
+                        result = { success: true };
+                        
+                        // Wait 2 seconds to simulate processing
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    } else {
+                        // Send to Google Apps Script (works in live environment)
+                        const response = await fetch('https://script.google.com/macros/s/AKfycbxXNsBUMnc2LfQgTxDru8rXJzqrk9Hmg88Uh777TohHG8V6jB1NN8xnwhPmKLKRE3z0/exec', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(submissionData),
+                            mode: 'cors'
+                        });
+                        
+                        console.log('Response status:', response.status);
+                        console.log('Response ok:', response.ok);
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        result = await response.json();
+                        console.log('Google Apps Script response:', result);
+                    }
+                    
+                    if (result.success) {
+                        // Generate and download PDF
+                        console.log('Generating PDF...');
+                        await this.generatePDF(submissionData);
+                        
+                        // Show results
+                        console.log('Showing results...');
+                        this.showResults();
+                        
+                        this.showMessage('Data saved successfully and PDF downloaded!', 'success');
+                    } else {
+                        throw new Error(result.error || 'Failed to save data');
+                    }
+                    
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    
+                    // Show specific error message
+                    let errorMessage = 'Form submission failed. ';
+                    if (error.message.includes('Failed to fetch')) {
+                        errorMessage += 'Network connection issue. Please check your internet connection and try again.';
+                    } else if (error.message.includes('CORS')) {
+                        errorMessage += 'Connection blocked by browser security. Please try a different browser.';
+                    } else {
+                        errorMessage += error.message;
+                    }
+                    
+                    this.showMessage(errorMessage, 'error');
+                    
+                    // Reset button
+                    const submitBtn = document.getElementById('submit-btn');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '🔓 Get Results & Download Report Instantly';
+                        submitBtn.disabled = false;
+                    }
+                }
+            }
+
+            showResults() {
+                try {
+                    console.log('showResults called');
+                    console.log('Current game state:', this.gameState);
+                    
+                    let performance = 'Poor';
+                    let emoji = '😟';
+                    
+                    if (this.gameState.tenantSatisfaction >= 90 && this.gameState.costPerSqFt <= 3.0) {
+                        performance = 'Excellent'; emoji = '🏆';
+                    } else if (this.gameState.tenantSatisfaction >= 80) {
+                        performance = 'Good'; emoji = '👍';
+                    } else if (this.gameState.tenantSatisfaction >= 70) {
+                        performance = 'Average'; emoji = '👌';
+                    }
+
+                    const scenarioContent = document.getElementById('scenario-content');
+                    console.log('Scenario content element found:', !!scenarioContent);
+                    
+                    if (!scenarioContent) throw new Error('Scenario content element not found');
+
+                    scenarioContent.innerHTML = `
+                        <div class="scenario-container">
+                            <div class="scenario-header">
+                                <h2>📊 Your Executive IT Risk Assessment</h2>
+                                <p>Property Management Performance Analysis</p>
+                            </div>
+                            
+                            <div style="text-align: center; font-size: 4rem; margin: 20px 0;">${emoji}</div>
+                            <div style="text-align: center; font-size: 3rem; color: #666; font-weight: bold; margin-bottom: 20px;">${performance}</div>
+                            
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 5px solid #dc143c;">
+                                <h3>Your Final Performance Metrics:</h3>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px;">
+                                    <div><strong>Tenant Satisfaction:</strong> ${Math.round(this.gameState.tenantSatisfaction)}%</div>
+                                    <div><strong>IT Cost/Sq Ft:</strong> £${this.gameState.costPerSqFt.toFixed(2)}</div>
+                                    <div><strong>System Uptime:</strong> ${this.gameState.uptime.toFixed(1)}%</div>
+                                    <div><strong>Response Time:</strong> ${this.gameState.responseTime.toFixed(0)} hours</div>
+                                </div>
+                            </div>
+
+                            <div style="background: #f8f9fa; border: 2px solid #dc143c; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+                                <h4 style="color: #dc143c;">✅ Assessment Complete!</h4>
+                                <p style="color: #666;">Your data has been securely stored and your professional PDF report has been downloaded to your device.</p>
+                                <p style="color: #666; margin-top: 10px;"><em>This preliminary assessment is based on your crisis simulator responses and contact form information.</em></p>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <button class="btn" onclick="gameManager.restartGame()">🔄 Try Different Scenarios</button>
+                            </div>
+                        </div>
+                    `;
+
+                    console.log('Results page content set');
+                    
+                    // Show success message
+                    this.showMessage('Assessment complete! Your data has been saved and PDF report downloaded.', 'success');
+                    console.log('Success message shown');
+                    
+                } catch (error) {
+                    console.error('showResults error:', error);
+                    this.handleError('Failed to show results', error);
+                }
+            }
+
+            restartGame() {
+                try {
+                    // Reset game state
+                    this.currentScenario = 0;
+                    this.gameState = {
+                        tenantSatisfaction: 95,
+                        costPerSqFt: 2.45,
+                        uptime: 99.9,
+                        responseTime: 2
+                    };
+                    this.gameDecisions = [];
+                    
+                    // Reset UI
+                    const startScreen = document.getElementById('start-screen');
+                    const scenarioContent = document.getElementById('scenario-content');
+                    
+                    if (startScreen) startScreen.style.display = 'block';
+                    if (scenarioContent) scenarioContent.style.display = 'none';
+                    
+                    this.updateMetrics();
+                    this.updateBuildingStatus();
+                } catch (error) {
+                    this.handleError('Failed to restart game', error);
+                }
+            }
+
+            showMessage(message, type = 'info') {
+                try {
+                    console.log('Showing message:', message, 'Type:', type);
+                    
+                    const formMessages = document.getElementById('form-messages');
+                    if (formMessages) {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = type === 'success' ? 'success-message' : 
+                                              type === 'error' ? 'error-message' : 'error-message';
+                        messageDiv.textContent = message;
+                        
+                        // Clear existing messages
+                        formMessages.innerHTML = '';
+                        formMessages.appendChild(messageDiv);
+                        
+                        console.log('Message added to DOM');
+                        
+                        // Auto-remove after 8 seconds for non-error messages
+                        if (type !== 'error') {
+                            setTimeout(() => {
+                                if (messageDiv.parentNode) {
+                                    messageDiv.parentNode.removeChild(messageDiv);
+                                }
+                            }, 8000);
+                        }
+                    } else {
+                        console.log('form-messages element not found, using alert');
+                        alert(message);
+                    }
+                } catch (error) {
+                    console.error('Failed to show message:', error);
+                    alert(message); // Ultimate fallback
+                }
+            }
+
+            handleError(message, error) {
+                console.error(message + ':', error);
+                
+                // Show user-friendly error message
+                const userMessage = 'Something went wrong. Please refresh the page and try again.';
+                this.showMessage(userMessage, 'error');
+                
+                // Try to maintain game state
+                try {
+                    this.updateMetrics();
+                } catch (updateError) {
+                    console.error('Failed to update metrics during error recovery:', updateError);
+                }
+            }
+
+            // Cleanup method for memory management
+            cleanup() {
+                try {
+                    this.isGameActive = false;
+                    
+                    if (this.animationFrame) {
+                        cancelAnimationFrame(this.animationFrame);
+                        this.animationFrame = null;
+                    }
+                    
+                    // Remove event listeners if any
+                    const form = document.getElementById('assessment-form');
+                    if (form) {
+                        form.removeEventListener('submit', this.handleFormSubmission);
+                    }
+                } catch (error) {
+                    console.error('Cleanup failed:', error);
+                }
+            }
+            
+            // Helper functions for assessment calculations
+            calculateGrade() {
+                const score = this.gameState.tenantSatisfaction;
+                if (score >= 90) return 'A';
+                if (score >= 80) return 'B';
+                if (score >= 70) return 'C';
+                if (score >= 60) return 'D';
+                return 'F';
+            }
+            
+            calculateRiskScore() {
+                const baseCost = 50000;
+                const satisfactionMultiplier = (100 - this.gameState.tenantSatisfaction) / 100;
+                const uptimeMultiplier = (100 - this.gameState.uptime) / 100;
+                const responseMultiplier = this.gameState.responseTime / 10;
+                
+                return Math.round(baseCost * (1 + satisfactionMultiplier + uptimeMultiplier + responseMultiplier));
+            }
+            
+            calculateSavings() {
+                const riskScore = this.calculateRiskScore();
+                const potential = riskScore * 0.7; // 70% of risk could be mitigated
+                return Math.round(potential);
+            }
+            
+            getPrimaryRisk() {
+                if (this.gameState.responseTime > 4) return 'Response Time';
+                if (this.gameState.uptime < 99) return 'System Reliability';
+                if (this.gameState.tenantSatisfaction < 85) return 'Tenant Satisfaction';
+                return 'Security Protocols';
+            }
+            
+            getSecondaryRisk() {
+                if (this.gameState.costPerSqFt > 3) return 'Cost Management';
+                if (this.gameState.uptime < 99.5) return 'Network Performance';
+                return 'Infrastructure Planning';
+            }
+            
+            async generatePDF(data) {
+                try {
+                    // Load jsPDF if not already loaded
+                    if (!window.jsPDF) {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                        document.head.appendChild(script);
+                        
+                        // Wait for script to load
+                        await new Promise(resolve => {
+                            script.onload = resolve;
+                        });
+                    }
+                    
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    
+                    // Header
+                    doc.setFillColor(220, 20, 60);
+                    doc.rect(0, 0, 210, 40, 'F');
+                    
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(24);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('🌐 MODERN NETWORKS', 15, 20);
+                    
+                    doc.setFontSize(12);
+                    doc.text('Commercial IT Infrastructure Specialists', 15, 30);
+                    
+                    // Report title
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFontSize(18);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Executive IT Risk Assessment Report', 15, 55);
+                    
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'italic');
+                    doc.text('Preliminary Assessment Based on Crisis Simulator & Contact Form Data', 15, 62);
+                    
+                    // Property details
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Property Information', 15, 80);
+                    
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(11);
+                    doc.text(`Property Manager: ${data.name}`, 15, 90);
+                    
+                    if (data.company && data.company !== 'Not provided') {
+                        doc.text(`Company: ${data.company}`, 15, 98);
+                    }
+                    
+                    if (data.buildingSize && data.buildingSize !== 'Not specified') {
+                        doc.text(`Building Size: ${this.getBuildingSizeText(data.buildingSize)}`, 15, 106);
+                    }
+                    
+                    doc.text(`Assessment Date: ${new Date().toLocaleDateString('en-GB')}`, 15, 114);
+                    
+                    // Results box
+                    doc.setFillColor(248, 249, 250);
+                    doc.rect(15, 125, 180, 50, 'F');
+                    doc.setDrawColor(220, 20, 60);
+                    doc.rect(15, 125, 180, 50);
+                    
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Assessment Results Summary', 20, 138);
+                    
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    doc.text(`Overall Grade: ${data.grade} (${this.getPerformanceText(data.tenantSatisfaction)})`, 20, 148);
+                    doc.text(`Tenant Satisfaction: ${data.tenantSatisfaction}%`, 20, 156);
+                    doc.text(`IT Cost per Sq Ft: £${data.costPerSqFt}/month`, 20, 164);
+                    doc.text(`System Uptime: ${data.uptime}%`, 20, 172);
+                    
+                    // Risk analysis
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Risk Analysis', 15, 190);
+                    
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    doc.text(`Annual Risk Exposure: £${data.riskScore.toLocaleString()}`, 15, 200);
+                    doc.text(`Potential Annual Savings: £${data.potentialSavings.toLocaleString()}`, 15, 208);
+                    doc.text(`Primary Risk Area: ${data.primaryRisk}`, 15, 216);
+                    doc.text(`Secondary Risk Area: ${data.secondaryRisk}`, 15, 224);
+                    
+                    if (data.challenges) {
+                        doc.text('Current Challenges:', 15, 235);
+                        const challengeLines = doc.splitTextToSize(data.challenges, 180);
+                        doc.text(challengeLines, 15, 243);
+                    }
+                    
+                    // Footer
+                    doc.setFillColor(220, 20, 60);
+                    doc.rect(15, 270, 180, 25, 'F');
+                    
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Modern Networks Ltd | 01442 400 600 | info@modernnetworks.co.uk', 20, 280);
+                    doc.text('Professional IT Infrastructure Services for Commercial Properties', 20, 288);
+                    
+                    // Generate filename and download
+                    const companyName = (data.company && data.company !== 'Not provided') ? data.company : data.name;
+                    const fileName = `IT_Assessment_${companyName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    doc.save(fileName);
+                    
+                    console.log('PDF generated and downloaded:', fileName);
+                    return fileName;
+                    
+                } catch (error) {
+                    console.error('PDF generation failed:', error);
+                    this.showMessage('PDF generation failed, but your data has been saved.', 'error');
+                }
+            }
+            
+            getBuildingSizeText(size) {
+                const sizes = {
+                    'under-50k': 'Under 50,000 sq ft',
+                    '50k-100k': '50,000 - 100,000 sq ft',
+                    '100k-250k': '100,000 - 250,000 sq ft',
+                    '250k-500k': '250,000 - 500,000 sq ft',
+                    'over-500k': 'Over 500,000 sq ft'
+                };
+                return sizes[size] || size || 'Not specified';
+            }
+            
+            getPerformanceText(satisfaction) {
+                if (satisfaction >= 90) return 'Excellent';
+                if (satisfaction >= 80) return 'Good';
+                if (satisfaction >= 70) return 'Average';
+                return 'Needs Improvement';
+            }
+        }
+
+        // Initialize game manager
+        let gameManager;
+        
+        window.addEventListener('load', function() {
+            try {
+                gameManager = new GameManager();
+            } catch (error) {
+                console.error('Failed to initialize game:', error);
+                alert('Game failed to load. Please refresh the page.');
+            }
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (gameManager && typeof gameManager.cleanup === 'function') {
+                gameManager.cleanup();
+            }
+        });
+        
+        // Error handling for uncaught errors
+        window.addEventListener('error', function(event) {
+            console.error('Uncaught error:', event.error);
+            if (gameManager && typeof gameManager.handleError === 'function') {
+                gameManager.handleError('Uncaught error', event.error);
+            }
+        });
+    </script>
+</body>
+</html>
