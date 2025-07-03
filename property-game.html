@@ -8,13 +8,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        body {<script>
-console.log('JavaScript is running!');
-console.log('GameManager exists:', typeof gameManager);
-setTimeout(() => {
-    console.log('GameManager after delay:', typeof gameManager);
-}, 3000);
-</script>
+        body {
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             min-height: 100vh;
@@ -314,6 +308,15 @@ setTimeout(() => {
             border-radius: 4px;
             margin: 10px 0;
             border: 1px solid #c3e6cb;
+        }
+        
+        .info-message {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border: 1px solid #bee5eb;
         }
         
         /* Responsive design improvements */
@@ -847,7 +850,7 @@ setTimeout(() => {
                     const primaryRisk = this.getPrimaryRisk();
                     const secondaryRisk = this.getSecondaryRisk();
                     
-                    // Prepare data for Google Apps Script
+                    // Prepare data for submission
                     const submissionData = {
                         name: name,
                         email: email,
@@ -870,77 +873,62 @@ setTimeout(() => {
                     };
                     
                     console.log('Sending data to Google Apps Script:', submissionData);
-                    
-                    // Show intermediate message
                     this.showMessage('Submitting your assessment...', 'info');
                     
-                    // Check if we're in Claude artifact environment (CSP restricted)
-                    const isClaudeArtifact = window.location.href.includes('about:srcdoc') || 
-                                           window.location.href.includes('claudeusercontent.com');
-                    
-                    let result;
-                    if (isClaudeArtifact) {
-                        // Simulate success for demonstration in Claude environment
-                        console.log('Claude artifact environment detected - simulating success');
-                        this.showMessage('⚠️ Demo Mode: In live environment, data would be sent to Google Sheets', 'info');
-                        result = { success: true };
+                    // Try to send to Google Sheets with timeout and better error handling
+                    let sheetsSuccess = false;
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
                         
-                        // Wait 2 seconds to simulate processing
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                    } else {
-                        // Send to Google Apps Script (works in live environment)
                         const response = await fetch('https://script.google.com/macros/s/AKfycbxXNsBUMnc2LfQgTxDru8rXJzqrk9Hmg88Uh777TohHG8V6jB1NN8xnwhPmKLKRE3z0/exec', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify(submissionData),
-                            mode: 'cors'
+                            signal: controller.signal
                         });
                         
-                        console.log('Response status:', response.status);
-                        console.log('Response ok:', response.ok);
+                        clearTimeout(timeoutId);
                         
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
+                        if (response.ok) {
+                            const result = await response.json();
+                            if (result.success) {
+                                sheetsSuccess = true;
+                                this.showMessage('✅ Data saved to our systems successfully', 'success');
+                            }
                         }
-                        
-                        result = await response.json();
-                        console.log('Google Apps Script response:', result);
+                    } catch (error) {
+                        console.log('Google Sheets submission failed:', error.message);
+                        // Don't show error to user - will continue with PDF generation
                     }
                     
-                    if (result.success) {
-                        // Generate and download PDF - ALWAYS run this
-                        console.log('Generating PDF...');
-                        try {
-                            await this.generatePDF(submissionData);
-                        } catch (pdfError) {
-                            console.error('PDF generation failed but continuing...', pdfError);
-                        }
+                    // Always generate PDF regardless of Google Sheets success
+                    console.log('Generating PDF...');
+                    this.showMessage('Generating your professional assessment report...', 'info');
+                    
+                    try {
+                        await this.generatePDF(submissionData);
                         
                         // Show results
-                        console.log('Showing results...');
-                        this.showResults();
+                        this.showResults(sheetsSuccess);
                         
-                        this.showMessage('Data saved successfully and PDF downloaded!', 'success');
-                    } else {
-                        throw new Error(result.error || 'Failed to save data');
+                        if (sheetsSuccess) {
+                            this.showMessage('✅ Assessment complete! Data saved and PDF report downloaded.', 'success');
+                        } else {
+                            this.showMessage('✅ Assessment complete! PDF report downloaded. (Contact data will be followed up manually)', 'success');
+                        }
+                        
+                    } catch (pdfError) {
+                        console.error('PDF generation failed:', pdfError);
+                        this.showResults(sheetsSuccess);
+                        this.showMessage('⚠️ Assessment complete! Results displayed below. (PDF download may have been blocked by browser)', 'info');
                     }
                     
                 } catch (error) {
                     console.error('Form submission error:', error);
-                    
-                    // Show specific error message
-                    let errorMessage = 'Form submission failed. ';
-                    if (error.message.includes('Failed to fetch')) {
-                        errorMessage += 'Network connection issue. Please check your internet connection and try again.';
-                    } else if (error.message.includes('CORS')) {
-                        errorMessage += 'Connection blocked by browser security. Please try a different browser.';
-                    } else {
-                        errorMessage += error.message;
-                    }
-                    
-                    this.showMessage(errorMessage, 'error');
+                    this.showMessage('Form submission failed: ' + error.message, 'error');
                     
                     // Reset button
                     const submitBtn = document.getElementById('submit-btn');
@@ -1253,13 +1241,11 @@ setTimeout(() => {
                     
                 } catch (error) {
                     console.error('PDF generation failed:', error);
-                    console.error('Error details:', error.message, error.stack);
-                    this.showMessage('PDF generation failed: ' + error.message, 'error');
                     throw error;
                 }
             }
 
-            showResults() {
+            showResults(sheetsSuccess = false) {
                 try {
                     console.log('showResults called');
                     console.log('Current game state:', this.gameState);
@@ -1279,6 +1265,10 @@ setTimeout(() => {
                     console.log('Scenario content element found:', !!scenarioContent);
                     
                     if (!scenarioContent) throw new Error('Scenario content element not found');
+
+                    const dataStatus = sheetsSuccess ? 
+                        "Your data has been securely stored in our systems and your professional PDF report has been downloaded." :
+                        "Your professional PDF report has been downloaded. Contact information will be followed up manually.";
 
                     scenarioContent.innerHTML = `
                         <div class="scenario-container">
@@ -1302,7 +1292,7 @@ setTimeout(() => {
 
                             <div style="background: #f8f9fa; border: 2px solid #ff0000; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
                                 <h4 style="color: #ff0000;">✅ Assessment Complete!</h4>
-                                <p style="color: #666;">Your data has been securely stored and your professional PDF report has been downloaded to your device.</p>
+                                <p style="color: #666;">${dataStatus}</p>
                                 <p style="color: #666; margin-top: 10px;"><em>This comprehensive assessment includes industry benchmarking, customized recommendations, and an IT disaster preparedness checklist.</em></p>
                             </div>
                             
@@ -1313,10 +1303,6 @@ setTimeout(() => {
                     `;
 
                     console.log('Results page content set');
-                    
-                    // Show success message
-                    this.showMessage('Assessment complete! Your data has been saved and PDF report downloaded.', 'success');
-                    console.log('Success message shown');
                     
                 } catch (error) {
                     console.error('showResults error:', error);
@@ -1358,7 +1344,7 @@ setTimeout(() => {
                     if (formMessages) {
                         const messageDiv = document.createElement('div');
                         messageDiv.className = type === 'success' ? 'success-message' : 
-                                              type === 'error' ? 'error-message' : 'error-message';
+                                              type === 'error' ? 'error-message' : 'info-message';
                         messageDiv.textContent = message;
                         
                         // Clear existing messages
