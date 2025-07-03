@@ -27,7 +27,7 @@
         }
         
         .header {
-            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -63,14 +63,14 @@
             padding: 12px 20px;
             border-radius: 25px;
             font-weight: bold;
-            border: 2px solid #dc143c;
+            border: 2px solid #ff0000;
             z-index: 10;
             transition: all 0.3s ease;
         }
         
         .status-good { color: #666; }
-        .status-warning { color: #dc143c; }
-        .status-critical { color: #8b0000; }
+        .status-warning { color: #ff0000; }
+        .status-critical { color: #cc0000; }
         
         .metrics-dashboard {
             display: grid;
@@ -86,7 +86,7 @@
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-top: 4px solid #dc143c;
+            border-top: 4px solid #ff0000;
             transition: transform 0.2s ease;
         }
         
@@ -105,7 +105,7 @@
         .scenario-container { padding: 30px; }
         
         .scenario-header {
-            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
             color: white;
             padding: 20px;
             border-radius: 12px;
@@ -118,7 +118,7 @@
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
-            border-left: 5px solid #dc143c;
+            border-left: 5px solid #ff0000;
             color: #666;
         }
         
@@ -135,9 +135,9 @@
         }
         
         .option-button:hover:not(.disabled) {
-            border-color: #dc143c;
+            border-color: #ff0000;
             transform: translateX(5px);
-            box-shadow: 0 4px 8px rgba(220, 20, 60, 0.1);
+            box-shadow: 0 4px 8px rgba(255, 0, 0, 0.1);
         }
         
         .option-button.disabled {
@@ -148,7 +148,7 @@
         
         .option-title { font-weight: bold; color: #666; margin-bottom: 5px; }
         .option-description { color: #666; font-size: 0.9rem; }
-        .option-cost { color: #dc143c; font-weight: bold; margin-top: 5px; }
+        .option-cost { color: #ff0000; font-weight: bold; margin-top: 5px; }
         
         .result-container {
             background: #f8f9fa;
@@ -178,7 +178,7 @@
             padding: 15px;
             background: white;
             border-radius: 8px;
-            border-top: 3px solid #dc143c;
+            border-top: 3px solid #ff0000;
             transition: transform 0.2s ease;
         }
         
@@ -188,10 +188,10 @@
         
         .impact-value { font-size: 1.5rem; font-weight: bold; }
         .positive { color: #28a745; }
-        .negative { color: #dc143c; }
+        .negative { color: #ff0000; }
         
         .btn {
-            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
             color: white;
             border: none;
             padding: 15px 30px;
@@ -206,7 +206,7 @@
         
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(220, 20, 60, 0.3);
+            box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
         }
         
         .btn:active {
@@ -215,7 +215,7 @@
         
         .start-screen { text-align: center; padding: 50px 30px; color: #666; }
         .start-btn { 
-            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%); 
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); 
             color: white; 
             border: none; 
             padding: 20px 40px; 
@@ -228,7 +228,7 @@
         
         .start-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(220, 20, 60, 0.3);
+            box-shadow: 0 6px 12px rgba(255, 0, 0, 0.3);
         }
         
         .contact-form {
@@ -236,7 +236,7 @@
             padding: 30px;
             margin-top: 30px;
             border-radius: 12px;
-            border-top: 5px solid #dc143c;
+            border-top: 5px solid #ff0000;
         }
         
         .form-row { 
@@ -257,12 +257,12 @@
         }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { 
             outline: none; 
-            border-color: #dc143c; 
-            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+            border-color: #ff0000; 
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
         }
         
         .submit-btn { 
-            background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%); 
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); 
             color: white; 
             border: none; 
             padding: 15px 40px; 
@@ -275,7 +275,7 @@
         
         .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(220, 20, 60, 0.3);
+            box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
         }
         
         .loading {
@@ -481,28 +481,6 @@
                 }
             }
 
-            initBuilding() {
-                try {
-                    const floors = document.getElementById('building-floors');
-                    if (!floors) throw new Error('Building floors element not found');
-                    
-                    // Clear existing windows
-                    floors.innerHTML = '';
-                    this.windows = [];
-                    
-                    // Create windows with error handling
-                    for (let i = 0; i < 48; i++) {
-                        const window = document.createElement('div');
-                        window.className = 'window';
-                        window.setAttribute('data-window-id', i);
-                        floors.appendChild(window);
-                        this.windows.push(window);
-                    }
-                } catch (error) {
-                    this.handleError('Failed to initialize building', error);
-                }
-            }
-
             updateBuildingStatus() {
                 try {
                     if (!this.isGameActive) return;
@@ -514,7 +492,7 @@
                     // Update building appearance based on status
                     if (buildingElement) {
                         if (this.gameState.uptime < 95) {
-                            buildingElement.style.filter = 'drop-shadow(0 10px 20px rgba(220, 20, 60, 0.5)) grayscale(0.3)';
+                            buildingElement.style.filter = 'drop-shadow(0 10px 20px rgba(255, 0, 0, 0.5)) grayscale(0.3)';
                         } else if (this.gameState.tenantSatisfaction > 90) {
                             buildingElement.style.filter = 'drop-shadow(0 10px 20px rgba(40, 167, 69, 0.3))';
                         } else {
@@ -728,8 +706,8 @@
                                 <p>Your Property Management Analysis is Ready</p>
                             </div>
                             
-                            <div style="background: #f8f9fa; border: 2px solid #dc143c; padding: 30px; border-radius: 12px; margin: 20px 0; text-align: center;">
-                                <h3 style="color: #dc143c; margin-bottom: 15px;">🔒 Your Results Are Ready!</h3>
+                            <div style="background: #f8f9fa; border: 2px solid #ff0000; padding: 30px; border-radius: 12px; margin: 20px 0; text-align: center;">
+                                <h3 style="color: #ff0000; margin-bottom: 15px;">🔒 Your Results Are Ready!</h3>
                                 <p style="color: #666; margin-bottom: 20px;">Complete the form below to instantly access:</p>
                                 <ul style="color: #666; text-align: left; max-width: 500px; margin: 0 auto; line-height: 1.6;">
                                     <li><strong>Your Property Management Performance Score</strong></li>
@@ -737,8 +715,9 @@
                                     <li><strong>Customised recommendations for your building</strong></li>
                                     <li><strong>Cost-saving opportunities analysis</strong></li>
                                     <li><strong>Priority action plan for IT improvements</strong></li>
+                                    <li><strong>IT Disaster Preparedness Checklist</strong></li>
                                 </ul>
-                                <p style="color: #dc143c; font-weight: bold; margin-top: 20px;">📄 Professional PDF report included</p>
+                                <p style="color: #ff0000; font-weight: bold; margin-top: 20px;">📄 Professional PDF report included</p>
                             </div>
                             
                             <div class="contact-form">
@@ -804,37 +783,20 @@
                                 </form>
                                 
                                 <p style="text-align: center; margin-top: 15px; color: #666;">
-                                    Questions? Call us: <strong style="color: #dc143c;">01462 426500</strong>
+                                    Questions? Call us: <strong style="color: #ff0000;">01462 426500</strong>
                                 </p>
                             </div>
                         </div>
                     `;
 
-                    // Add form submission handler with better error checking
+                    // Add form submission handler
                     setTimeout(() => {
                         const form = document.getElementById('assessment-form');
-                        const submitBtn = document.getElementById('submit-btn');
                         
                         if (form) {
                             form.addEventListener('submit', (e) => {
-                                console.log('Form submitted via form event');
                                 this.handleFormSubmission(e);
                             });
-                            console.log('Form event listener attached');
-                        } else {
-                            console.error('Form element not found');
-                        }
-                        
-                        // Also add click handler to submit button as backup
-                        if (submitBtn) {
-                            submitBtn.addEventListener('click', (e) => {
-                                console.log('Submit button clicked');
-                                if (form && form.checkValidity()) {
-                                    e.preventDefault();
-                                    this.handleFormSubmission(e);
-                                }
-                            });
-                            console.log('Submit button click listener attached');
                         }
                         
                     }, 100);
@@ -850,9 +812,6 @@
                 try {
                     const submitBtn = document.getElementById('submit-btn');
                     const formMessages = document.getElementById('form-messages');
-                    
-                    console.log('Submit button found:', !!submitBtn);
-                    console.log('Form messages element found:', !!formMessages);
                     
                     // Show loading state
                     if (submitBtn) {
@@ -870,9 +829,6 @@
                     // Validate required fields
                     const name = formData.get('name');
                     const email = formData.get('email');
-                    
-                    console.log('Name:', name);
-                    console.log('Email:', email);
                     
                     if (!name || !email) {
                         throw new Error('Name and email are required');
@@ -989,6 +945,314 @@
                 }
             }
 
+            async generatePDF(data) {
+                try {
+                    console.log('Starting PDF generation...');
+                    
+                    // Load jsPDF if not already loaded
+                    if (!window.jsPDF) {
+                        console.log('Loading jsPDF library...');
+                        const script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                        document.head.appendChild(script);
+                        
+                        // Wait for script to load
+                        await new Promise(resolve => {
+                            script.onload = resolve;
+                        });
+                        console.log('jsPDF library loaded');
+                    }
+                    
+                    const { jsPDF } = window.jspdf;
+                    console.log('Creating PDF document...');
+                    const doc = new jsPDF();
+                    
+                    // Modern Networks brand colors (matching brand guidelines)
+                    const brandRed = [255, 0, 0];
+                    const brandDarkGray = [42, 62, 70];
+                    const lightGray = [248, 249, 250];
+                    
+                    console.log('Adding content to PDF...');
+                    
+                    // PAGE 1 - EXECUTIVE SUMMARY
+                    // Header background
+                    doc.setFillColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.rect(0, 0, 210, 35, 'F');
+                    
+                    // Logo text (modern networks branding)
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(20);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('modern networks', 15, 22);
+                    
+                    // Tagline
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('Commercial IT Infrastructure Specialists', 15, 30);
+                    
+                    // Title
+                    doc.setTextColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.setFontSize(22);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Property IT Risk Assessment', 20, 60);
+                    doc.text('Executive Summary Report', 20, 72);
+                    
+                    doc.setFontSize(11);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(`Assessment Date: ${new Date().toLocaleDateString('en-GB')}`, 20, 85);
+                    doc.text(`Property Manager: ${data.name}`, 20, 92);
+                    if (data.company && data.company !== 'Not provided') {
+                        doc.text(`Property: ${data.company}`, 20, 99);
+                    }
+                    
+                    // Executive Summary Box
+                    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+                    doc.rect(15, 110, 180, 50, 'F');
+                    doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.setLineWidth(2);
+                    doc.rect(15, 110, 180, 50);
+                    
+                    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('EXECUTIVE SUMMARY', 20, 125);
+                    
+                    doc.setTextColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.setFontSize(11);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    const performanceText = this.getPerformanceText(data.tenantSatisfaction);
+                    doc.text(`Overall IT Performance Grade: ${data.grade} (${performanceText})`, 20, 138);
+                    doc.text(`Annual Risk Exposure: £${data.riskScore.toLocaleString()}`, 20, 147);
+                    doc.text(`Potential Cost Savings: £${data.potentialSavings.toLocaleString()}`, 20, 156);
+                    
+                    // Key Metrics
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.text('KEY PERFORMANCE METRICS', 20, 180);
+                    
+                    doc.setTextColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.setFontSize(11);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    // Metrics in two columns
+                    doc.text('Tenant Satisfaction:', 20, 195);
+                    doc.text(`${data.tenantSatisfaction}%`, 70, 195);
+                    doc.text('System Uptime:', 110, 195);
+                    doc.text(`${data.uptime}%`, 160, 195);
+                    
+                    doc.text('IT Cost per Sq Ft:', 20, 205);
+                    doc.text(`£${data.costPerSqFt}/month`, 70, 205);
+                    doc.text('Response Time:', 110, 205);
+                    doc.text(`${data.responseTime} hours`, 160, 205);
+                    
+                    // Industry Benchmarking
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.text('INDUSTRY BENCHMARKING', 20, 225);
+                    
+                    doc.setTextColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    // Industry benchmark analysis
+                    let benchmarkText = this.getBenchmarkAnalysis(data);
+                    const benchmarkLines = doc.splitTextToSize(benchmarkText, 170);
+                    doc.text(benchmarkLines, 20, 235);
+                    
+                    // Footer
+                    const pageHeight = doc.internal.pageSize.height;
+                    doc.setFillColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.rect(0, pageHeight - 25, 210, 25, 'F');
+                    
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('Modern Networks Ltd | 01462 426500 | info@modernnetworks.co.uk', 15, pageHeight - 15);
+                    doc.text('Empowering Commercial Properties with Reliable IT Infrastructure', 15, pageHeight - 8);
+                    
+                    // PAGE 2 - DETAILED ANALYSIS & RECOMMENDATIONS
+                    doc.addPage();
+                    
+                    // Header for page 2
+                    doc.setFillColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.rect(0, 0, 210, 35, 'F');
+                    
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(20);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('modern networks', 15, 22);
+                    
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('Commercial IT Infrastructure Specialists', 15, 30);
+                    
+                    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.setFontSize(18);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Detailed Analysis & Recommendations', 20, 60);
+                    
+                    // Decision Analysis
+                    doc.setFontSize(14);
+                    doc.text('YOUR DECISION ANALYSIS', 20, 80);
+                    
+                    doc.setTextColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    let yPos = 90;
+                    data.gameDecisions.forEach((decision, index) => {
+                        doc.text(`Scenario ${index + 1}: ${decision.title}`, 20, yPos);
+                        yPos += 8;
+                    });
+                    
+                    // Customized Recommendations
+                    yPos += 10;
+                    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('CUSTOMIZED RECOMMENDATIONS', 20, yPos);
+                    
+                    doc.setTextColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    const recommendations = this.getCustomRecommendations(data);
+                    yPos += 10;
+                    recommendations.forEach((rec, index) => {
+                        const recLines = doc.splitTextToSize(`${index + 1}. ${rec}`, 170);
+                        doc.text(recLines, 20, yPos);
+                        yPos += recLines.length * 6 + 4;
+                    });
+                    
+                    // ROI Calculator
+                    yPos += 10;
+                    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('PROACTIVE vs REACTIVE IT MANAGEMENT ROI', 20, yPos);
+                    
+                    doc.setTextColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    const roiAnalysis = this.getROIAnalysis(data);
+                    yPos += 10;
+                    const roiLines = doc.splitTextToSize(roiAnalysis, 170);
+                    doc.text(roiLines, 20, yPos);
+                    
+                    // Footer page 2
+                    doc.setFillColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.rect(0, pageHeight - 25, 210, 25, 'F');
+                    
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('Modern Networks Ltd | 01462 426500 | info@modernnetworks.co.uk', 15, pageHeight - 15);
+                    doc.text('Empowering Commercial Properties with Reliable IT Infrastructure', 15, pageHeight - 8);
+                    
+                    // PAGE 3 - IT DISASTER PREPAREDNESS CHECKLIST
+                    doc.addPage();
+                    
+                    // Header for page 3
+                    doc.setFillColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.rect(0, 0, 210, 35, 'F');
+                    
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(20);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('modern networks', 15, 22);
+                    
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('Commercial IT Infrastructure Specialists', 15, 30);
+                    
+                    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.setFontSize(18);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('IT Disaster Preparedness Checklist', 20, 60);
+                    
+                    doc.setTextColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('Essential elements for commercial property IT resilience:', 20, 75);
+                    
+                    const checklist = this.getITChecklist();
+                    let checklistY = 85;
+                    checklist.forEach((item, index) => {
+                        const itemLines = doc.splitTextToSize(`☐ ${item}`, 170);
+                        doc.text(itemLines, 20, checklistY);
+                        checklistY += itemLines.length * 6 + 2;
+                    });
+                    
+                    // Modern Networks Services Section
+                    checklistY += 15;
+                    if (checklistY > 220) {
+                        doc.addPage();
+                        checklistY = 50;
+                    }
+                    
+                    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+                    doc.rect(15, checklistY - 5, 180, 60, 'F');
+                    doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.rect(15, checklistY - 5, 180, 60);
+                    
+                    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('HOW MODERN NETWORKS CAN HELP', 20, checklistY + 8);
+                    
+                    doc.setTextColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    const services = [
+                        '• 24/7 Managed IT Support for Commercial Properties',
+                        '• Proactive Network Monitoring & Maintenance',
+                        '• Cybersecurity Solutions & Risk Assessment',
+                        '• Business Continuity & Disaster Recovery Planning',
+                        '• Infrastructure Design & Implementation',
+                        '• Tenant IT Support Services'
+                    ];
+                    
+                    let serviceY = checklistY + 18;
+                    services.forEach(service => {
+                        doc.text(service, 20, serviceY);
+                        serviceY += 8;
+                    });
+                    
+                    // Footer page 3
+                    doc.setFillColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                    doc.rect(0, pageHeight - 25, 210, 25, 'F');
+                    
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('Modern Networks Ltd | 01462 426500 | info@modernnetworks.co.uk', 15, pageHeight - 15);
+                    doc.text('Empowering Commercial Properties with Reliable IT Infrastructure', 15, pageHeight - 8);
+                    
+                    console.log('PDF content added successfully');
+                    
+                    // Generate filename and download
+                    const companyName = (data.company && data.company !== 'Not provided') ? data.company : data.name;
+                    const fileName = `Modern_Networks_IT_Assessment_${companyName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    
+                    console.log('Downloading PDF:', fileName);
+                    doc.save(fileName);
+                    
+                    console.log('PDF generated and downloaded successfully:', fileName);
+                    return fileName;
+                    
+                } catch (error) {
+                    console.error('PDF generation failed:', error);
+                    console.error('Error details:', error.message, error.stack);
+                    this.showMessage('PDF generation failed: ' + error.message, 'error');
+                    throw error;
+                }
+            }
+
             showResults() {
                 try {
                     console.log('showResults called');
@@ -1020,7 +1284,7 @@
                             <div style="text-align: center; font-size: 4rem; margin: 20px 0;">${emoji}</div>
                             <div style="text-align: center; font-size: 3rem; color: #666; font-weight: bold; margin-bottom: 20px;">${performance}</div>
                             
-                            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 5px solid #dc143c;">
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 5px solid #ff0000;">
                                 <h3>Your Final Performance Metrics:</h3>
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px;">
                                     <div><strong>Tenant Satisfaction:</strong> ${Math.round(this.gameState.tenantSatisfaction)}%</div>
@@ -1030,10 +1294,10 @@
                                 </div>
                             </div>
 
-                            <div style="background: #f8f9fa; border: 2px solid #dc143c; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
-                                <h4 style="color: #dc143c;">✅ Assessment Complete!</h4>
+                            <div style="background: #f8f9fa; border: 2px solid #ff0000; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+                                <h4 style="color: #ff0000;">✅ Assessment Complete!</h4>
                                 <p style="color: #666;">Your data has been securely stored and your professional PDF report has been downloaded to your device.</p>
-                                <p style="color: #666; margin-top: 10px;"><em>This preliminary assessment is based on your crisis simulator responses and contact form information.</em></p>
+                                <p style="color: #666; margin-top: 10px;"><em>This comprehensive assessment includes industry benchmarking, customized recommendations, and an IT disaster preparedness checklist.</em></p>
                             </div>
                             
                             <div style="text-align: center;">
@@ -1130,26 +1394,6 @@
                 }
             }
 
-            // Cleanup method for memory management
-            cleanup() {
-                try {
-                    this.isGameActive = false;
-                    
-                    if (this.animationFrame) {
-                        cancelAnimationFrame(this.animationFrame);
-                        this.animationFrame = null;
-                    }
-                    
-                    // Remove event listeners if any
-                    const form = document.getElementById('assessment-form');
-                    if (form) {
-                        form.removeEventListener('submit', this.handleFormSubmission);
-                    }
-                } catch (error) {
-                    console.error('Cleanup failed:', error);
-                }
-            }
-            
             // Helper functions for assessment calculations
             calculateGrade() {
                 const score = this.gameState.tenantSatisfaction;
@@ -1188,85 +1432,24 @@
                 return 'Infrastructure Planning';
             }
             
-            async generatePDF(data) {
-                try {
-                    console.log('Starting PDF generation...');
-                    
-                    // Test if we're in a restricted environment
-                    console.log('Window location:', window.location.href);
-                    console.log('User agent:', navigator.userAgent);
-                    
-                    // Try to create a simple text file first as a test
-                    console.log('Testing basic download functionality...');
-                    const testContent = `Modern Networks IT Assessment Report
-Assessment Date: ${new Date().toLocaleDateString('en-GB')}
-Property Manager: ${data.name}
-Overall Grade: ${data.grade}
-Tenant Satisfaction: ${data.tenantSatisfaction}%
-System Uptime: ${data.uptime}%
-
-This is a basic text version. PDF generation may be restricted in this environment.
-For full PDF functionality, please use this tool on your own website.
-
-Modern Networks Ltd | 01462 426500 | info@modernnetworks.co.uk`;
-
-                    const blob = new Blob([testContent], { type: 'text/plain' });
-                    const url = window.URL.createObjectURL(blob);
-                    
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `Modern_Networks_Assessment_${data.name.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
-                    
-                    // Try to trigger download
-                    document.body.appendChild(link);
-                    console.log('Attempting download...');
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
-                    
-                    console.log('Basic download completed');
-                    this.showMessage('Assessment report downloaded as text file. PDF functionality may be limited in demo environment.', 'info');
-                    
-                    return link.download;
-                    
-                } catch (error) {
-                    console.error('Download failed:', error);
-                    console.error('Error details:', error.message, error.stack);
-                    this.showMessage('Download failed: ' + error.message + '. PDF generation may be restricted in this environment.', 'error');
-                    throw error;
-                }
+            getBuildingSizeText(size) {
+                const sizes = {
+                    'under-50k': 'Under 50,000 sq ft',
+                    '50k-100k': '50,000 - 100,000 sq ft',
+                    '100k-250k': '100,000 - 250,000 sq ft',
+                    '250k-500k': '250,000 - 500,000 sq ft',
+                    'over-500k': 'Over 500,000 sq ft'
+                };
+                return sizes[size] || size || 'Not specified';
             }
             
-            addPDFHeader(doc, brandRed, brandDarkGray) {
-                // Header background
-                doc.setFillColor(brandRed[0], brandRed[1], brandRed[2]);
-                doc.rect(0, 0, 210, 35, 'F');
-                
-                // Logo text (simplified since we can't embed images easily)
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(20);
-                doc.setFont('helvetica', 'bold');
-                doc.text('modern networks', 15, 22);
-                
-                // Tagline
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'normal');
-                doc.text('Commercial IT Infrastructure Specialists', 15, 30);
+            getPerformanceText(satisfaction) {
+                if (satisfaction >= 90) return 'Excellent';
+                if (satisfaction >= 80) return 'Good';
+                if (satisfaction >= 70) return 'Average';
+                return 'Needs Improvement';
             }
-            
-            addPDFFooter(doc, brandRed, brandDarkGray) {
-                // Footer
-                const pageHeight = doc.internal.pageSize.height;
-                doc.setFillColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
-                doc.rect(0, pageHeight - 25, 210, 25, 'F');
-                
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(9);
-                doc.setFont('helvetica', 'normal');
-                doc.text('Modern Networks Ltd | 01462 426500 | info@modernnetworks.co.uk', 15, pageHeight - 15);
-                doc.text('Empowering Commercial Properties with Reliable IT Infrastructure', 15, pageHeight - 8);
-            }
-            
+
             getBenchmarkAnalysis(data) {
                 let analysis = '';
                 if (data.tenantSatisfaction >= 90) {
@@ -1358,24 +1541,6 @@ Modern Networks Ltd | 01462 426500 | info@modernnetworks.co.uk`;
                     'Emergency contact procedures for IT incidents',
                     'Regular vulnerability assessments and penetration testing'
                 ];
-            }
-            
-            getBuildingSizeText(size) {
-                const sizes = {
-                    'under-50k': 'Under 50,000 sq ft',
-                    '50k-100k': '50,000 - 100,000 sq ft',
-                    '100k-250k': '100,000 - 250,000 sq ft',
-                    '250k-500k': '250,000 - 500,000 sq ft',
-                    'over-500k': 'Over 500,000 sq ft'
-                };
-                return sizes[size] || size || 'Not specified';
-            }
-            
-            getPerformanceText(satisfaction) {
-                if (satisfaction >= 90) return 'Excellent';
-                if (satisfaction >= 80) return 'Good';
-                if (satisfaction >= 70) return 'Average';
-                return 'Needs Improvement';
             }
         }
 
