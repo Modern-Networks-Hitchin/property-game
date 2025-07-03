@@ -804,7 +804,7 @@
                                 </form>
                                 
                                 <p style="text-align: center; margin-top: 15px; color: #666;">
-                                    Questions? Call us: <strong style="color: #dc143c;">01442 400 600</strong>
+                                    Questions? Call us: <strong style="color: #dc143c;">01462 426500</strong>
                                 </p>
                             </div>
                         </div>
@@ -912,9 +912,9 @@
                     // Show intermediate message
                     this.showMessage('Submitting your assessment...', 'info');
                     
+                    // Check if we're in Claude artifact environment (CSP restricted)
                     const isClaudeArtifact = window.location.href.includes('about:srcdoc') || 
-                       window.location.href.includes('claudeusercontent.com') ||
-                       window.location.href.includes('github.io');
+                                           window.location.href.includes('claudeusercontent.com');
                     
                     let result;
                     if (isClaudeArtifact) {
@@ -948,9 +948,13 @@
                     }
                     
                     if (result.success) {
-                        // Generate and download PDF
+                        // Generate and download PDF - ALWAYS run this
                         console.log('Generating PDF...');
-                        await this.generatePDF(submissionData);
+                        try {
+                            await this.generatePDF(submissionData);
+                        } catch (pdfError) {
+                            console.error('PDF generation failed but continuing...', pdfError);
+                        }
                         
                         // Show results
                         console.log('Showing results...');
@@ -1186,119 +1190,174 @@
             
             async generatePDF(data) {
                 try {
-                    // Load jsPDF if not already loaded
-                    if (!window.jsPDF) {
-                        const script = document.createElement('script');
-                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                        document.head.appendChild(script);
-                        
-                        // Wait for script to load
-                        await new Promise(resolve => {
-                            script.onload = resolve;
-                        });
-                    }
+                    console.log('Starting PDF generation...');
                     
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
+                    // Test if we're in a restricted environment
+                    console.log('Window location:', window.location.href);
+                    console.log('User agent:', navigator.userAgent);
                     
-                    // Header
-                    doc.setFillColor(220, 20, 60);
-                    doc.rect(0, 0, 210, 40, 'F');
+                    // Try to create a simple text file first as a test
+                    console.log('Testing basic download functionality...');
+                    const testContent = `Modern Networks IT Assessment Report
+Assessment Date: ${new Date().toLocaleDateString('en-GB')}
+Property Manager: ${data.name}
+Overall Grade: ${data.grade}
+Tenant Satisfaction: ${data.tenantSatisfaction}%
+System Uptime: ${data.uptime}%
+
+This is a basic text version. PDF generation may be restricted in this environment.
+For full PDF functionality, please use this tool on your own website.
+
+Modern Networks Ltd | 01462 426500 | info@modernnetworks.co.uk`;
+
+                    const blob = new Blob([testContent], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
                     
-                    doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(24);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('🌐 MODERN NETWORKS', 15, 20);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `Modern_Networks_Assessment_${data.name.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
                     
-                    doc.setFontSize(12);
-                    doc.text('Commercial IT Infrastructure Specialists', 15, 30);
+                    // Try to trigger download
+                    document.body.appendChild(link);
+                    console.log('Attempting download...');
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
                     
-                    // Report title
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFontSize(18);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Executive IT Risk Assessment Report', 15, 55);
+                    console.log('Basic download completed');
+                    this.showMessage('Assessment report downloaded as text file. PDF functionality may be limited in demo environment.', 'info');
                     
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'italic');
-                    doc.text('Preliminary Assessment Based on Crisis Simulator & Contact Form Data', 15, 62);
-                    
-                    // Property details
-                    doc.setFontSize(14);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Property Information', 15, 80);
-                    
-                    doc.setFont('helvetica', 'normal');
-                    doc.setFontSize(11);
-                    doc.text(`Property Manager: ${data.name}`, 15, 90);
-                    
-                    if (data.company && data.company !== 'Not provided') {
-                        doc.text(`Company: ${data.company}`, 15, 98);
-                    }
-                    
-                    if (data.buildingSize && data.buildingSize !== 'Not specified') {
-                        doc.text(`Building Size: ${this.getBuildingSizeText(data.buildingSize)}`, 15, 106);
-                    }
-                    
-                    doc.text(`Assessment Date: ${new Date().toLocaleDateString('en-GB')}`, 15, 114);
-                    
-                    // Results box
-                    doc.setFillColor(248, 249, 250);
-                    doc.rect(15, 125, 180, 50, 'F');
-                    doc.setDrawColor(220, 20, 60);
-                    doc.rect(15, 125, 180, 50);
-                    
-                    doc.setFontSize(14);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Assessment Results Summary', 20, 138);
-                    
-                    doc.setFont('helvetica', 'normal');
-                    doc.setFontSize(10);
-                    doc.text(`Overall Grade: ${data.grade} (${this.getPerformanceText(data.tenantSatisfaction)})`, 20, 148);
-                    doc.text(`Tenant Satisfaction: ${data.tenantSatisfaction}%`, 20, 156);
-                    doc.text(`IT Cost per Sq Ft: £${data.costPerSqFt}/month`, 20, 164);
-                    doc.text(`System Uptime: ${data.uptime}%`, 20, 172);
-                    
-                    // Risk analysis
-                    doc.setFontSize(14);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Risk Analysis', 15, 190);
-                    
-                    doc.setFont('helvetica', 'normal');
-                    doc.setFontSize(10);
-                    doc.text(`Annual Risk Exposure: £${data.riskScore.toLocaleString()}`, 15, 200);
-                    doc.text(`Potential Annual Savings: £${data.potentialSavings.toLocaleString()}`, 15, 208);
-                    doc.text(`Primary Risk Area: ${data.primaryRisk}`, 15, 216);
-                    doc.text(`Secondary Risk Area: ${data.secondaryRisk}`, 15, 224);
-                    
-                    if (data.challenges) {
-                        doc.text('Current Challenges:', 15, 235);
-                        const challengeLines = doc.splitTextToSize(data.challenges, 180);
-                        doc.text(challengeLines, 15, 243);
-                    }
-                    
-                    // Footer
-                    doc.setFillColor(220, 20, 60);
-                    doc.rect(15, 270, 180, 25, 'F');
-                    
-                    doc.setTextColor(255, 255, 255);
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Modern Networks Ltd | 01442 400 600 | info@modernnetworks.co.uk', 20, 280);
-                    doc.text('Professional IT Infrastructure Services for Commercial Properties', 20, 288);
-                    
-                    // Generate filename and download
-                    const companyName = (data.company && data.company !== 'Not provided') ? data.company : data.name;
-                    const fileName = `IT_Assessment_${companyName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-                    doc.save(fileName);
-                    
-                    console.log('PDF generated and downloaded:', fileName);
-                    return fileName;
+                    return link.download;
                     
                 } catch (error) {
-                    console.error('PDF generation failed:', error);
-                    this.showMessage('PDF generation failed, but your data has been saved.', 'error');
+                    console.error('Download failed:', error);
+                    console.error('Error details:', error.message, error.stack);
+                    this.showMessage('Download failed: ' + error.message + '. PDF generation may be restricted in this environment.', 'error');
+                    throw error;
                 }
+            }
+            
+            addPDFHeader(doc, brandRed, brandDarkGray) {
+                // Header background
+                doc.setFillColor(brandRed[0], brandRed[1], brandRed[2]);
+                doc.rect(0, 0, 210, 35, 'F');
+                
+                // Logo text (simplified since we can't embed images easily)
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.text('modern networks', 15, 22);
+                
+                // Tagline
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Commercial IT Infrastructure Specialists', 15, 30);
+            }
+            
+            addPDFFooter(doc, brandRed, brandDarkGray) {
+                // Footer
+                const pageHeight = doc.internal.pageSize.height;
+                doc.setFillColor(brandDarkGray[0], brandDarkGray[1], brandDarkGray[2]);
+                doc.rect(0, pageHeight - 25, 210, 25, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Modern Networks Ltd | 01462 426500 | info@modernnetworks.co.uk', 15, pageHeight - 15);
+                doc.text('Empowering Commercial Properties with Reliable IT Infrastructure', 15, pageHeight - 8);
+            }
+            
+            getBenchmarkAnalysis(data) {
+                let analysis = '';
+                if (data.tenantSatisfaction >= 90) {
+                    analysis = 'Your tenant satisfaction score exceeds industry average by 15-20%. ';
+                } else if (data.tenantSatisfaction >= 80) {
+                    analysis = 'Your tenant satisfaction aligns with industry standards (80-85%). ';
+                } else {
+                    analysis = 'Your tenant satisfaction is below industry average. Immediate action recommended. ';
+                }
+                
+                if (data.uptime >= 99.5) {
+                    analysis += 'System uptime meets enterprise-grade standards. ';
+                } else if (data.uptime >= 99) {
+                    analysis += 'System uptime is acceptable but improvement possible. ';
+                } else {
+                    analysis += 'System uptime is significantly below industry standards (99%+). ';
+                }
+                
+                if (data.costPerSqFt <= 2.5) {
+                    analysis += 'IT costs are well-optimized compared to industry benchmark (£2.50-£4.00/sq ft).';
+                } else if (data.costPerSqFt <= 4) {
+                    analysis += 'IT costs are within industry range but optimization opportunities exist.';
+                } else {
+                    analysis += 'IT costs exceed industry benchmarks - significant savings potential identified.';
+                }
+                
+                return analysis;
+            }
+            
+            getCustomRecommendations(data) {
+                const recommendations = [];
+                
+                if (data.tenantSatisfaction < 85) {
+                    recommendations.push('Implement tenant communication portal for IT service updates');
+                }
+                if (data.uptime < 99.5) {
+                    recommendations.push('Deploy redundant network infrastructure with failover capabilities');
+                }
+                if (data.responseTime > 2) {
+                    recommendations.push('Establish 24/7 monitoring with automated alert systems');
+                }
+                if (data.costPerSqFt > 3) {
+                    recommendations.push('Consolidate IT services under managed service provider for cost optimization');
+                }
+                
+                // Add general recommendations based on decisions
+                const hasSecurityConcerns = data.gameDecisions.some(d => d.scenario === 1);
+                if (hasSecurityConcerns) {
+                    recommendations.push('Conduct comprehensive cybersecurity audit and implement multi-layered security');
+                }
+                
+                const hasNetworkIssues = data.gameDecisions.some(d => d.scenario === 0 || d.scenario === 2);
+                if (hasNetworkIssues) {
+                    recommendations.push('Upgrade to enterprise-grade networking equipment with professional management');
+                }
+                
+                if (recommendations.length === 0) {
+                    recommendations.push('Continue current IT practices while planning for future scalability');
+                    recommendations.push('Regular IT health checks to maintain current performance levels');
+                }
+                
+                return recommendations;
+            }
+            
+            getROIAnalysis(data) {
+                const proactiveCost = data.costPerSqFt * 1.2; // 20% higher upfront
+                const reactiveCost = data.riskScore / 1000; // Convert to per sq ft
+                const savings = reactiveCost - proactiveCost;
+                const paybackMonths = Math.round(proactiveCost / (savings / 12));
+                
+                return `Proactive IT Management: £${proactiveCost.toFixed(2)}/sq ft annually. Reactive IT Management: £${reactiveCost.toFixed(2)}/sq ft annually (including downtime costs). Net Annual Savings: £${savings.toFixed(2)}/sq ft. Typical payback period: ${paybackMonths} months. Proactive management reduces emergency callouts by 80% and prevents costly downtime that averages £5,000-£15,000 per incident for commercial properties.`;
+            }
+            
+            getITChecklist() {
+                return [
+                    'Documented IT disaster recovery plan with regular testing',
+                    'Redundant internet connections from multiple providers',
+                    'Uninterruptible Power Supply (UPS) systems for critical equipment',
+                    'Regular automated backups with offsite storage',
+                    'Network monitoring and alerting systems',
+                    'Cybersecurity measures including firewalls and endpoint protection',
+                    'Regular security awareness training for staff and tenants',
+                    'Inventory of all IT assets and equipment',
+                    'Service level agreements with IT support providers',
+                    'Business continuity procedures for extended outages',
+                    'Regular firmware and software updates',
+                    'Physical security measures for server rooms and network equipment',
+                    'Documentation of network topology and configurations',
+                    'Emergency contact procedures for IT incidents',
+                    'Regular vulnerability assessments and penetration testing'
+                ];
             }
             
             getBuildingSizeText(size) {
