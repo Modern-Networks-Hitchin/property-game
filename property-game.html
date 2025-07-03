@@ -8,7 +8,13 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        body {
+        body {<script>
+console.log('JavaScript is running!');
+console.log('GameManager exists:', typeof gameManager);
+setTimeout(() => {
+    console.log('GameManager after delay:', typeof gameManager);
+}, 3000);
+</script>
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             min-height: 100vh;
